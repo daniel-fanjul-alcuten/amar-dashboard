@@ -88,8 +88,15 @@ func main() {
 			return
 		}
 		var data struct {
+			FetchedAgo           time.Duration
 			StockJsonContextPath string
 		}
+		d := time.Now().Sub(func() time.Time {
+			l.Lock()
+			defer l.Unlock()
+			return m.Time
+		}())
+		data.FetchedAgo = d - d%time.Second
 		data.StockJsonContextPath = *StockJsonContextPath
 		if err := templ.Execute(w, data); err != nil {
 			log.Println(err)
