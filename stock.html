@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>foo</title>
+<link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.11/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+<script type="text/javascript" charset="utf8" src="http://cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
+</head>
+<body>
+<table id="table_id" class="display">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td></td>
+    <td></td>
+  </tr>
+  </tbody>
+</table>
+<script type="text/javascript" charset="utf8">
+$(document).ready(function () {
+    $('#table_id').DataTable({
+      serverSide: true,
+      ajax: {
+        url: '{{ .StockJsonContextPath }}'
+      },
+      columns: [
+        { name: 'Name', data: 'Name' },
+        { name: 'Count', data: 'Count' }
+      ]
+    });
+});
+</script>
+</body>
+</html>
+
