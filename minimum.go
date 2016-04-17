@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 	"sort"
@@ -128,11 +129,13 @@ func (v *Server) MinimumHtml(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, *MinimumHtmlContextPath, http.StatusSeeOther)
 			return
 		}
+		user = template.HTMLEscapeString(user)
 		item := r.FormValue("item")
 		if item == "" {
 			http.Redirect(w, r, *MinimumHtmlContextPath, http.StatusSeeOther)
 			return
 		}
+		item = template.HTMLEscapeString(item)
 		countString := r.FormValue("count")
 		count, err := strconv.Atoi(countString)
 		if err != nil {
