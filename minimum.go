@@ -167,6 +167,8 @@ func (v *Server) MinimumHtml(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Save my_stuff: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		http.Redirect(w, r, *MinimumHtmlContextPath, http.StatusSeeOther)
+		return
 	}
 	var data struct {
 		MinimumHtmlContextPath string
