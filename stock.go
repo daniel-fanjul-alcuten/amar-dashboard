@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -94,7 +95,8 @@ func (m Model) StockSearch(q ServerSideRequest) (e StockResult) {
 					min += ii[n]
 				}
 			}
-			sr.Rows = append(sr.Rows, StockRow{n, s.Count, min, s.Count - min})
+			link := fmt.Sprintf("<a href=\"http://amar.bornofsnails.net%v\">%v</a>", s.Link, s.Name)
+			sr.Rows = append(sr.Rows, StockRow{link, s.Count, min, s.Count - min})
 		}
 	}
 	sort.Sort(sr)
