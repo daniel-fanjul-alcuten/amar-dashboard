@@ -1,18 +1,29 @@
 <html>
 <head>
-<title>Stock</title>
+<title>Minimum Stock</title>
 <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.11/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 <script type="text/javascript" charset="utf8" src="http://cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
 </head>
 <body>
+<form action="{{ .MinimumHtmlContextPath }}" method="post">
+  <p>
+  User: <input name="user" type="text"/>
+  </p>
+  <p>
+  Item: <input name="item" type="text"/>
+  </p>
+  <p>
+  Count: <input name="count" type="text"/>
+  </p>
+  <input type="submit"/>
+</form>
 <table id="table_id" class="display">
   <thead>
     <tr>
-      <th>Name</th>
+      <th>User</th>
+      <th>Item</th>
       <th>Count</th>
-      <th>Minimum</th>
-      <th>Surplus</th>
     </tr>
   </thead>
   <tbody>
@@ -20,25 +31,20 @@
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
   </tr>
   </tbody>
 </table>
-<p>
-Stuff fetched {{ .FetchedAgo }} ago.
-</p>
 <script type="text/javascript" charset="utf8">
 $(document).ready(function () {
     $('#table_id').DataTable({
       serverSide: true,
       ajax: {
-        url: '{{ .StockJsonContextPath }}'
+        url: '{{ .MinimumJsonContextPath }}'
       },
       columns: [
-        { name: 'Name', data: 'Name' },
-        { name: 'Count', data: 'Count' },
-        { name: 'Minimum', data: 'Minimum' },
-        { name: 'Surplus', data: 'Surplus' }
+        { name: 'User', data: 'User' },
+        { name: 'Item', data: 'Item' },
+        { name: 'Count', data: 'Count' }
       ]
     });
 });

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"sort"
-	"strings"
+	"bufio"
+	"encoding/json"
+	"os"
 	"time"
 )
 
@@ -13,89 +14,44 @@ type Stuff struct {
 }
 
 type Model struct {
-	Time  time.Time
-	Stuff map[string]*Stuff
+	Time    time.Time
+	Stuff   map[string]*Stuff
+	Minimum map[string]map[string]int
 }
 
-type Order struct {
-	Column    string
-	Ascending bool
-}
-
-type Row struct {
-	Name  string
-	Count int
-}
-
-type OrderRows struct {
-	Orders []Order
-	Rows   []Row
-}
-
-func (or OrderRows) Len() int {
-	return len(or.Rows)
-}
-
-func (or OrderRows) Less(i, j int) bool {
-	for _, o := range or.Orders {
-		if o.Column == "Name" {
-			if or.Rows[i].Name == or.Rows[j].Name {
-				continue
-			}
-			if o.Ascending {
-				return or.Rows[i].Name < or.Rows[j].Name
-			}
-			return or.Rows[i].Name > or.Rows[j].Name
+func Load() (m *Model, err error) {
+	var f *os.File
+	if f, err = os.Open(*State); err != nil {
+		if os.IsNotExist(err) {
+			m, err = &Model{}, nil
 		}
-		if o.Column == "Count" {
-			if or.Rows[i].Count == or.Rows[j].Count {
-				continue
-			}
-			if o.Ascending {
-				return or.Rows[i].Count < or.Rows[j].Count
-			}
-			return or.Rows[i].Count > or.Rows[j].Count
-		}
-		return or.Rows[i].Name < or.Rows[j].Name
+		return
 	}
-	return false
+	r := bufio.NewReader(f)
+	d := json.NewDecoder(r)
+	err = d.Decode(&m)
+	return
 }
 
-func (or OrderRows) Swap(i, j int) {
-	or.Rows[i], or.Rows[j] = or.Rows[j], or.Rows[i]
-}
-
-type Result struct {
-	Draw            int    `json:"draw"`
-	RecordsTotal    int    `json:"recordsTotal"`
-	RecordsFiltered int    `json:"recordsFiltered"`
-	Data            []Row  `json:"data"`
-	Error           string `json:"error"`
-}
-
-func (m Model) Search(draw int, search string, order []Order, start, length int) (e Result) {
-	e.Draw = draw
-	e.RecordsTotal = len(m.Stuff)
-	or := OrderRows{order, nil}
-	search = strings.ToUpper(search)
-	for n, s := range m.Stuff {
-		if search == "" || strings.Contains(strings.ToUpper(n), search) {
-			e.RecordsFiltered++
-			or.Rows = append(or.Rows, Row{n, s.Count})
-		}
+func Save(m *Model) (err error) {
+	var f *os.File
+	if f, err = os.Create(*State + ".tmp"); err != nil {
+		return
 	}
-	sort.Sort(or)
-	i := 0
-	for _, r := range or.Rows {
-		if i < start {
-			i++
-			continue
-		} else if len(e.Data) < length {
-			i++
-			e.Data = append(e.Data, r)
-			continue
-		}
-		break
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	e := json.NewEncoder(w)
+	if err = e.Encode(m); err != nil {
+		return
+	}
+	if err = w.Flush(); err != nil {
+		return
+	}
+	if err = f.Close(); err != nil {
+		return
+	}
+	if err = os.Rename(f.Name(), *State); err != nil {
+		return
 	}
 	return
 }
